@@ -6,7 +6,7 @@ function Piece:new(area, x, y, opts)
     self.image = love.graphics.newImage('assets/pieces/'..self.type..'_'..self.color..'.png')
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
-    self.scale = opts.scale or 1
+    self.scale = self.scale or 1
 end
 
 function Piece:update(dt)

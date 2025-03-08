@@ -19,21 +19,20 @@ function love.load()
     requireFiles(room_files)
     rooms = {}
     current_room = nil
-
-    c1 = Circle(nil, 66, 34, {radius=35})
-    c2 = Circle(nil, 366, 234, {radius=45})
-
     input = Input()
-    input:bind("mouse1", 'test')
-    input:bind('s', 't2')
     camera = Camera()
+
+    input:bind("1", 'e1')
+    input:bind("2", 'e2')
+    input:bind('s', 't2')
     input:bind('space', function() camera:shake(4, 60, 1) end)
+    input:bind('f1', function() gc_logs() end)
     gotoRoom('Stage', 'stage')
 end
 
 function love.update(dt)
-    if input:pressed('test') then print('pressed') end
-    if input:released('test') then print('released') end
+    if input:pressed('e1') then gotoRoom('Dummy', 'dummy') end
+    if input:pressed('e2') then gotoRoom('Stage', 'stage') end
     if input:down('t2', 0.5, 2) then print('test event') end
     if current_room then current_room:update(dt) end
     camera:update(dt)
@@ -88,4 +87,55 @@ end
 function resize(s)
     love.window.setMode(s*gw, s*gh) 
     sx, sy = s, s
+end
+
+-- garbage collection and memory usage
+function count_all(f)
+    local seen = {}
+    local count_table
+    count_table = function(t)
+        if seen[t] then return end
+            f(t)
+	    seen[t] = true
+	    for k,v in pairs(t) do
+	        if type(v) == "table" then
+		    count_table(v)
+	        elseif type(v) == "userdata" then
+		    f(v)
+	        end
+	end
+    end
+    count_table(_G)
+end
+
+function type_count()
+    local counts = {}
+    local enumerate = function (o)
+        local t = type_name(o)
+        counts[t] = (counts[t] or 0) + 1
+    end
+    count_all(enumerate)
+    return counts
+end
+
+global_type_table = nil
+function type_name(o)
+    if global_type_table == nil then
+        global_type_table = {}
+            for k,v in pairs(_G) do
+	        global_type_table[v] = k
+	    end
+	global_type_table[0] = "table"
+    end
+    return global_type_table[getmetatable(o) or 0] or "Unknown"
+end
+
+function gc_logs()
+    print("Before collection: " .. collectgarbage("count")/1024)
+    collectgarbage()
+    print("After collection: " .. collectgarbage("count")/1024)
+    print("Object count: ")
+    local counts = type_count()
+    for k, v in pairs(counts) do print(k, v) end
+    print("-------------------------------------")
 end

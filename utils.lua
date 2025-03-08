@@ -17,3 +17,11 @@ function random_real(n1, n2)
         return love.math.random()*(n2 - n1) + n1
     end
 end
+
+-- Helper function to split string (Lua doesn't have this built-in)
+function string:split(sep)
+    local fields = {}
+    local pattern = string.format("([^%s]+)", sep)
+    self:gsub(pattern, function(c) fields[#fields + 1] = c end)
+    return fields
+end

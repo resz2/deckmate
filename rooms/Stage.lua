@@ -5,7 +5,7 @@ function Stage:new()
     self.main_canvas = love.graphics.newCanvas(gw, gh)
     self.timer = Timer()
     self.board = self.area:addGameObject('Board', 0, 0)
-    self.area:addGameObject('Piece', gw/2, gh/2, {type='king', color='black'})
+    self.area:addGameObject('Piece', gw/2, gh/2, {type='king', color='black', scale=0.5})
 end
 
 function Stage:update(dt)
@@ -27,4 +27,9 @@ function Stage:draw()
     love.graphics.setBlendMode('alpha', 'premultiplied')
     love.graphics.draw(self.main_canvas, 0, 0, 0, sx, sy)
     love.graphics.setBlendMode('alpha')
+end
+
+function Stage:destroy()
+    self.area:destroy()
+    self.area = nil
 end
